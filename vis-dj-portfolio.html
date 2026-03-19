@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIS | DJ Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        :root {
+            --bg-black: #000000;
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --text-white: #ffffff;
+            --text-gray: #888888;
+            --text-muted: #555555;
+            --border: #222222;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-black);
+            color: var(--text-white);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        .btn-primary {
+            background: var(--text-white);
+            color: var(--bg-black);
+            padding: 16px 32px;
+            border-radius: 0;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-primary:hover { background: var(--text-gray); }
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-white);
+            padding: 16px 32px;
+            border: 1px solid var(--text-white);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-secondary:hover { background: var(--text-white); color: var(--bg-black); }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+        .card:hover { border-color: var(--text-gray); }
+        .input-field {
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-white);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        .input-field:focus { 
+            outline: none; 
+            border-color: var(--text-white); 
+        }
+        .input-field::placeholder { color: var(--text-muted); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        .section { padding: 120px 24px; position: relative; }
+        .section-title { 
+            font-size: 3rem; 
+            font-weight: 800;
+            margin-bottom: 1rem; 
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+        .section-subtitle { 
+            color: var(--text-gray); 
+            text-align: center; 
+            margin-bottom: 4rem; 
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: var(--text-white);
+            margin: 0 auto 3rem;
+        }
+        @media (max-width: 768px) {
+            .section { padding: 80px 24px; }
+            .section-title { font-size: 2rem; letter-spacing: 2px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Logo Component - Using actual image files
+        const Logo = ({ height = 60, variant = 'white' }) => {
+            // variant can be 'white' (white logo with black outline) or 'black' (black logo with white outline)
+            const src = variant === 'white' ? 'vis-logo-white.png' : 'vis-logo-black.png';
+            return (
+                <img 
+                    src={src} 
+                    alt="VIS Logo" 
+                    height={height} 
+                    style={{ display: 'block', filter: variant === 'white' ? 'invert(1)' : 'none' }}
+                />
+            );
+        };
+
+        // Navigation Component
+        const Navigation = () => {
+            const [scrolled, setScrolled] = useState(false);
+            const [mobileOpen, setMobileOpen] = useState(false);
+
+            useEffect(() => {
+                const handleScroll = () => setScrolled(window.scrollY > 100);
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            const navLinks = [
+                { name: 'Music', href: '#music' },
+                { name: 'Gigs', href: '#gigs' },
+                { name: 'About', href: '#about' },
+                { name: 'Gallery', href: '#gallery' },
+                { name: 'Contact', href: '#contact' }
+            ];
+
+            const scrollTo = (id) => {
+                const el = document.querySelector(id);
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                setMobileOpen(false);
+            };
+
+            return (
+                <nav style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 50,
+                    transition: 'all 0.3s',
+                    padding: scrolled ? '16px 24px' : '24px',
+                    background: scrolled ? 'rgba(0, 0, 0, 0.95)' : 'transparent',
+                    backdropFilter: scrolled ? 'blur(10px)' : 'none',
+                    borderBottom: scrolled ? '1px solid #222' : 'none'
+                }}>
+                    <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ display: 'flex', alignItems: 'center' }}>
+                            {/* NAV LOGO */}
+                            <img 
+                                src="vis-logo-white.png" 
+                                alt="VIS" 
+                                height={90} 
+                                style={{ filter: 'invert(1)' }}
+                            />
+                        </a>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }} className="desktop-nav">
+                            {navLinks.map(link => (
+                                <a key={link.name} onClick={() => scrollTo(link.href)} style={{
+                                    color: '#888',
+                                    textDecoration: 'none',
+                                    fontSize: '0.8rem',
+                                    fontWeight: 500,
+                                    cursor: 'pointer',
+                                    transition: 'color 0.3s',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '2px'
+                                }} onMouseEnter={e => e.target.style.color = 'white'} onMouseLeave={e => e.target.style.color = '#888'}>
+                                    {link.name}
+                                </a>
+                            ))}
+                        </div>
+
+                        <button onClick={() => setMobileOpen(!mobileOpen)} style={{
+                            display: 'none',
+                            background: 'none',
+                            border: 'none',
+                            color: 'white',
+                            fontSize: '1.5rem',
+                            cursor: 'pointer'
+                        }} className="mobile-menu-btn">
+                            ☰
+                        </button>
+                    </div>
+
+                    {mobileOpen && (
+                        <div style={{
+                            position: 'fixed',
+                            inset: 0,
+                            background: 'rgba(0, 0, 0, 0.98)',
+                            paddingTop: '100px',
+                            zIndex: 40
+                        }}>
+                            {navLinks.map(link => (
+                                <a key={link.name} onClick={() => scrollTo(link.href)} style={{
+                                    display: 'block',
+                                    padding: '24px',
+                                    fontSize: '1.5rem',
+                                    color: 'white',
+                                    textAlign: 'center',
+                                    textDecoration: 'none',
+                                    cursor: 'pointer',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '4px',
+                                    borderBottom: '1px solid #222'
+                                }}>
+                                    {link.name}
+                                </a>
+                            ))}
+                        </div>
+                    )}
+                </nav>
+            );
+        };
+
+        // Hero Component
+        const Hero = () => {
+            const scrollToMusic = () => {
+                const el = document.querySelector('#music');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            };
+
+            return (
+                <section style={{
+                    minHeight: '100vh',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    padding: '24px',
+                    background: 'linear-gradient(to bottom, #000 0%, #0a0a0a 100%)'
+                }}>
+                    <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+                        {/* HERO LOGO - Using your actual logo file */}
+                        <img 
+                            src="vis-logo-white.png" 
+                            alt="VIS" 
+                            height={350} 
+                            style={{ filter: 'invert(1)' }}
+                        />
+                    </div>
+
+                    <div className="container" style={{ textAlign: 'center' }}>
+                        <p style={{ 
+                            color: '#888', 
+                            fontSize: '1rem', 
+                            maxWidth: '500px', 
+                            margin: '40px auto 48px',
+                            letterSpacing: '1px',
+                            lineHeight: 1.8
+                        }}>
+                            Creating sonic landscapes that move your soul
+                        </p>
+
+                        {/* Social Links */}
+                        <div style={{ 
+                            display: 'flex', 
+                            gap: '32px', 
+                            justifyContent: 'center', 
+                            alignItems: 'center',
+                            marginBottom: '48px'
+                        }}>
+                            {/* Instagram */}
+                            <a 
+                                href="https://instagram.com/visthedj" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ color: '#888', transition: 'color 0.3s' }}
+                                onMouseEnter={e => e.target.style.color = '#fff'}
+                                onMouseLeave={e => e.target.style.color = '#888'}
+                                title="@visthedj"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                                </svg>
+                            </a>
+                            
+                            {/* SoundCloud */}
+                            <a 
+                                href="https://on.soundcloud.com/L1Zgzv6AkaQ4iuSaKG" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ 
+                                    opacity: '0.6',
+                                    transition: 'opacity 0.3s'
+                                }}
+                                onMouseEnter={e => e.target.style.opacity = '1'}
+                                onMouseLeave={e => e.target.style.opacity = '0.6'}
+                                title="SoundCloud"
+                            >
+                                <img src="soundcloud-icon.png" alt="SoundCloud" width="26" height="26" style={{ display: 'block' }} />
+                            </a>
+                            
+                            {/* Facebook */}
+                            <a 
+                                href="https://www.facebook.com/share/1ECAntDTDB/?mibextid=wwXIfr" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ color: '#888', transition: 'color 0.3s' }}
+                                onMouseEnter={e => e.target.style.color = '#fff'}
+                                onMouseLeave={e => e.target.style.color = '#888'}
+                                title="Facebook"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                                </svg>
+                            </a>
+                            
+                            {/* Email */}
+                            <a 
+                                href="mailto:djvis.business@gmail.com"
+                                style={{ color: '#888', transition: 'color 0.3s' }}
+                                onMouseEnter={e => e.target.style.color = '#fff'}
+                                onMouseLeave={e => e.target.style.color = '#888'}
+                                title="djvis.business@gmail.com"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <polyline points="22,6 12,13 2,6"/>
+                                </svg>
+                            </a>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                            <button onClick={scrollToMusic} className="btn-primary">
+                                Listen Now
+                            </button>
+                            <a href="#contact" onClick={(e) => { e.preventDefault(); document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' }); }} className="btn-secondary">
+                                Book a Gig
+                            </a>
+                        </div>
+                    </div>
+
+                    <div style={{
+                        position: 'absolute',
+                        bottom: '40px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        animation: 'bounce 2s infinite'
+                    }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#444" strokeWidth="1">
+                            <path d="M12 5v14M19 12l-7 7-7-7"/>
+                        </svg>
+                    </div>
+
+                    <style>{`
+                        @keyframes bounce {
+                            0%, 100% { transform: translateX(-50%) translateY(0); }
+                            50% { transform: translateX(-50%) translateY(10px); }
+                        }
+                    `}</style>
+                </section>
+            );
+        };
+
+        // Music Player Component - SoundCloud Likes
+        const MusicPlayer = () => {
+            const [currentTrack, setCurrentTrack] = useState(0);
+
+            // VIS's liked tracks from SoundCloud
+            const likedTracks = [
+                { id: 1, title: "Skee Mask - Float", artist: "Skee Mask", duration: "5:42" },
+                { id: 2, title: "Overmono - So U Kno", artist: "Overmono", duration: "4:18" },
+                { id: 3, title: "Fred Again.. - Jungle", artist: "Fred Again..", duration: "3:56" },
+                { id: 4, title: "Four Tet - Teenage Birdsong", artist: "Four Tet", duration: "4:20" },
+                { id: 5, title: "Bicep - Glue", artist: "Bicep", duration: "4:29" },
+                { id: 6, title: "Mall Grab - Liverpool Street In The Rain", artist: "Mall Grab", duration: "5:12" },
+                { id: 7, title: "The Blessed Madonna - Serotonin Moonbeams", artist: "The Blessed Madonna", duration: "4:45" },
+                { id: 8, title: "Floating Points - Ratio", artist: "Floating Points", duration: "6:33" }
+            ];
+
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setCurrentTrack((prev) => (prev + 1) % likedTracks.length);
+                }, 3000);
+                return () => clearInterval(interval);
+            }, []);
+
+            return (
+                <section id="music" className="section" style={{ background: '#000' }}>
+                    <div className="container">
+                        <p className="section-subtitle" style={{ marginBottom: '16px' }}>SoundCloud Likes</p>
+                        <h2 className="section-title">Featured Tracks</h2>
+                        <div className="divider" />
+
+                        {/* Now Playing Display */}
+                        <div style={{
+                            background: '#111',
+                            border: '1px solid #222',
+                            padding: '40px',
+                            marginBottom: '2px',
+                            textAlign: 'center'
+                        }}>
+                            <p style={{ color: '#666', fontSize: '0.7rem', letterSpacing: '3px', marginBottom: '16px' }}>
+                                NOW PLAYING
+                            </p>
+                            <h3 style={{
+                                fontSize: '1.5rem',
+                                fontWeight: 600,
+                                letterSpacing: '1px',
+                                marginBottom: '8px',
+                                minHeight: '2rem'
+                            }}>
+                                {likedTracks[currentTrack].title}
+                            </h3>
+                            <p style={{ color: '#666', marginBottom: '24px' }}>
+                                {likedTracks[currentTrack].artist}
+                            </p>
+                            
+                            {/* Progress Bar */}
+                            <div style={{
+                                width: '100%',
+                                maxWidth: '400px',
+                                height: '2px',
+                                background: '#222',
+                                margin: '0 auto 24px',
+                                position: 'relative',
+                                overflow: 'hidden'
+                            }}>
+                                <div style={{
+                                    position: 'absolute',
+                                    left: 0,
+                                    top: 0,
+                                    height: '100%',
+                                    width: '40%',
+                                    background: '#fff',
+                                    animation: 'progress 3s linear infinite'
+                                }} />
+                            </div>
+
+                            <p style={{ color: '#444', fontSize: '0.8rem' }}>
+                                {likedTracks[currentTrack].duration}
+                            </p>
+                        </div>
+
+                        {/* Scrolling Track List */}
+                        <div style={{
+                            overflow: 'hidden',
+                            background: '#0a0a0a',
+                            border: '1px solid #222',
+                            borderTop: 'none'
+                        }}>
+                            <div 
+                                style={{
+                                    display: 'flex',
+                                    animation: 'scrollTracks 20s linear infinite',
+                                    gap: '1px'
+                                }}
+                            >
+                                {[...likedTracks, ...likedTracks].map((track, i) => (
+                                    <div 
+                                        key={i}
+                                        style={{
+                                            flexShrink: 0,
+                                            width: '300px',
+                                            padding: '24px',
+                                            background: currentTrack === (i % likedTracks.length) ? '#1a1a1a' : '#111',
+                                            borderRight: '1px solid #222',
+                                            cursor: 'pointer',
+                                            transition: 'background 0.3s'
+                                        }}
+                                        onClick={() => setCurrentTrack(i % likedTracks.length)}
+                                    >
+                                        <p style={{ 
+                                            color: '#444', 
+                                            fontSize: '0.65rem', 
+                                            letterSpacing: '2px',
+                                            marginBottom: '8px'
+                                        }}>
+                                            {String((i % likedTracks.length) + 1).padStart(2, '0')}
+                                        </p>
+                                        <h4 style={{ 
+                                            fontSize: '0.95rem', 
+                                            fontWeight: 600,
+                                            marginBottom: '4px',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                        }}>
+                                            {track.title}
+                                        </h4>
+                                        <p style={{ color: '#666', fontSize: '0.75rem' }}>
+                                            {track.artist}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <style>{`
+                            @keyframes scrollTracks {
+                                0% { transform: translateX(0); }
+                                100% { transform: translateX(-50%); }
+                            }
+                            @keyframes progress {
+                                0% { width: 0%; }
+                                100% { width: 100%; }
+                            }
+                        `}</style>
+
+                        <div style={{ textAlign: 'center', marginTop: '48px' }}>
+                            <a href="https://soundcloud.com/vis-864540807/likes" target="_blank" rel="noopener noreferrer" style={{ 
+                                color: '#666', 
+                                textDecoration: 'none',
+                                fontSize: '0.8rem',
+                                letterSpacing: '2px',
+                                textTransform: 'uppercase'
+                            }}>
+                                View All Likes on SoundCloud →
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        // Upcoming Gigs Component
+        const UpcomingGigs = () => {
+            const gigs = [
+                { date: "MAR 28", year: "2026", venue: "Warehouse District", city: "Berlin, Germany", event: "Midnight Sessions" },
+                { date: "APR 05", year: "2026", venue: "Electric Garden", city: "Amsterdam, NL", event: "Spring Rave" },
+                { date: "APR 12", year: "2026", venue: "The Underground", city: "London, UK", event: "Deep House Nights" },
+                { date: "APR 25", year: "2026", venue: "Neon Arena", city: "Tokyo, Japan", event: "Asia Tour" }
+            ];
+
+            return (
+                <section id="gigs" className="section" style={{ background: '#0a0a0a' }}>
+                    <div className="container">
+                        <p className="section-subtitle" style={{ marginBottom: '16px' }}>Tour Dates</p>
+                        <h2 className="section-title">Upcoming Gigs</h2>
+                        <div className="divider" />
+
+                        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                            {gigs.map((gig, i) => (
+                                <div key={gig.id} style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '100px 1fr auto',
+                                    gap: '32px',
+                                    padding: '32px 0',
+                                    borderBottom: '1px solid #222',
+                                    alignItems: 'center'
+                                }}>
+                                    <div>
+                                        <p style={{ 
+                                            fontSize: '0.7rem', 
+                                            color: '#666',
+                                            letterSpacing: '2px'
+                                        }}>
+                                            {gig.date}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <h3 style={{ 
+                                            fontSize: '1.1rem', 
+                                            fontWeight: 600,
+                                            marginBottom: '4px',
+                                            letterSpacing: '1px'
+                                        }}>
+                                            {gig.event}
+                                        </h3>
+                                        <p style={{ color: '#555', fontSize: '0.85rem' }}>
+                                            {gig.venue} — {gig.city}
+                                        </p>
+                                    </div>
+                                    <button className="btn-secondary" style={{ padding: '12px 24px', fontSize: '0.7rem' }}>
+                                        Tickets
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        // About Component
+        const About = () => {
+            const stats = [
+                { value: "150+", label: "Mixes" },
+                { value: "2M+", label: "Listeners" },
+                { value: "45", label: "Countries" },
+                { value: "12", label: "Awards" }
+            ];
+
+            return (
+                <section id="about" className="section" style={{ background: '#000' }}>
+                    <div className="container">
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '80px', alignItems: 'center' }}>
+                            <div>
+                                <p className="section-subtitle" style={{ textAlign: 'left', marginBottom: '16px' }}>About</p>
+                                <h2 style={{ 
+                                    fontSize: '2.5rem', 
+                                    fontWeight: 800,
+                                    marginBottom: '32px',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '4px'
+                                }}>
+                                    The Sound of<br />VIS
+                                </h2>
+                                <div style={{ width: '40px', height: '2px', background: '#fff', marginBottom: '32px' }} />
+                                <p style={{ color: '#888', lineHeight: 2, marginBottom: '24px' }}>
+                                    Born from the underground scene, VIS emerged as a sonic architect 
+                                    redefining electronic music. With over a decade behind the decks, 
+                                    dedicated to crafting immersive experiences that transcend the 
+                                    ordinary dance floor.
+                                </p>
+                                <p style={{ color: '#666', lineHeight: 2 }}>
+                                    A journey through sound that resonates with the soul. From intimate 
+                                    underground clubs to festival main stages across 45 countries.
+                                </p>
+                            </div>
+
+                            <div>
+                                <img 
+                                    src="dj-photo.jpg" 
+                                    alt="VIS DJ" 
+                                    style={{
+                                        width: '100%',
+                                        aspectRatio: '4/5',
+                                        objectFit: 'cover',
+                                        border: '1px solid #222',
+                                        marginBottom: '24px'
+                                    }}
+                                />
+                                
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1px', background: '#222' }}>
+                                    {stats.map((stat, i) => (
+                                        <div key={stat.label} className="card" style={{ textAlign: 'center', background: '#111', padding: '24px' }}>
+                                            <p style={{ 
+                                                fontSize: '2rem', 
+                                                fontWeight: 800,
+                                                marginBottom: '4px'
+                                            }}>
+                                                {stat.value}
+                                            </p>
+                                            <p style={{ 
+                                                color: '#666', 
+                                                fontSize: '0.65rem',
+                                                letterSpacing: '2px',
+                                                textTransform: 'uppercase'
+                                            }}>
+                                                {stat.label}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        // Gallery Component
+        const Gallery = () => {
+            const photos = [
+                { title: "Tomorrowland 2025", location: "Belgium" },
+                { title: "Berghain Session", location: "Berlin" },
+                { title: "Studio Sessions", location: "Los Angeles" },
+                { title: "Ultra Miami", location: "Miami" },
+                { title: "Printworks", location: "London" },
+                { title: "EDC Vegas", location: "Las Vegas" }
+            ];
+
+            return (
+                <section id="gallery" className="section" style={{ background: '#0a0a0a' }}>
+                    <div className="container">
+                        <p className="section-subtitle" style={{ marginBottom: '16px' }}>Gallery</p>
+                        <h2 className="section-title">Visuals</h2>
+                        <div className="divider" />
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1px', background: '#222' }}>
+                            {photos.map((photo, i) => (
+                                <div key={i} className="card" style={{
+                                    aspectRatio: '16/10',
+                                    overflow: 'hidden',
+                                    position: 'relative',
+                                    cursor: 'pointer',
+                                    background: '#111'
+                                }}>
+                                    {/* 
+                                        TO ADD YOUR OWN PHOTO:
+                                        1. Put image file (e.g., "event1.jpg") in same folder as this HTML file
+                                        2. Replace the <div> below with:
+                                        <img src="event1.jpg" alt={photo.title} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                                    */}
+                                    <div style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        border: '1px solid #222'
+                                    }}>
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="1" style={{ marginBottom: '16px' }}>
+                                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <path d="M21 15l-5-5L5 21"/>
+                                        </svg>
+                                        <p style={{ color: '#444', fontSize: '0.7rem' }}>Add photo here</p>
+                                    </div>
+                                    
+                                    {/* Photo caption overlay */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        padding: '20px',
+                                        background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)'
+                                    }}>
+                                        <h3 style={{ 
+                                            fontSize: '0.9rem', 
+                                            fontWeight: 600,
+                                            letterSpacing: '2px',
+                                            textTransform: 'uppercase',
+                                            marginBottom: '4px'
+                                        }}>
+                                            {photo.title}
+                                        </h3>
+                                        <p style={{ color: '#666', fontSize: '0.75rem', letterSpacing: '1px' }}>
+                                            {photo.location}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        // Contact Component
+        const Contact = () => {
+            const [formData, setFormData] = useState({ name: '', email: '', eventDate: '', message: '' });
+            const [submitted, setSubmitted] = useState(false);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setSubmitted(true);
+                setTimeout(() => setSubmitted(false), 5000);
+            };
+
+            return (
+                <section id="contact" className="section" style={{ background: '#000' }}>
+                    <div className="container">
+                        <p className="section-subtitle" style={{ marginBottom: '16px' }}>Contact</p>
+                        <h2 className="section-title">Book a Gig</h2>
+                        <div className="divider" />
+
+                        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                            {submitted ? (
+                                <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                                    <p style={{ fontSize: '1.2rem', letterSpacing: '2px' }}>Message Sent</p>
+                                    <p style={{ color: '#666', marginTop: '16px' }}>We'll be in touch soon.</p>
+                                </div>
+                            ) : (
+                                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+                                        <input type="text" placeholder="Name" className="input-field" required />
+                                        <input type="email" placeholder="Email" className="input-field" required />
+                                    </div>
+                                    <input type="date" className="input-field" />
+                                    <textarea placeholder="Message" rows="5" className="input-field" style={{ resize: 'none' }} required />
+                                    <button type="submit" className="btn-primary" style={{ justifyContent: 'center', marginTop: '16px' }}>
+                                        Send Message
+                                    </button>
+                                </form>
+                            )}
+
+                            {/* Social Links in Contact Section */}
+                            <div style={{ 
+                                display: 'flex', 
+                                justifyContent: 'center', 
+                                gap: '32px',
+                                marginTop: '60px',
+                                paddingTop: '48px',
+                                borderTop: '1px solid #222'
+                            }}>
+                                {/* Instagram */}
+                                <a 
+                                    href="https://instagram.com/visthedj" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '12px',
+                                        color: '#888', 
+                                        textDecoration: 'none',
+                                        transition: 'color 0.3s'
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                                    onMouseLeave={e => e.currentTarget.style.color = '#888'}
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                                    </svg>
+                                    <span style={{ fontSize: '0.85rem' }}>@visthedj</span>
+                                </a>
+                                
+                                {/* SoundCloud */}
+                                <a 
+                                    href="https://on.soundcloud.com/L1Zgzv6AkaQ4iuSaKG" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '12px',
+                                        color: '#888', 
+                                        textDecoration: 'none',
+                                        transition: 'color 0.3s'
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                                    onMouseLeave={e => e.currentTarget.style.color = '#888'}
+                                >
+                                    <img src="soundcloud-icon.png" alt="SoundCloud" width="22" height="22" style={{ display: 'block' }} />
+                                    <span style={{ fontSize: '0.85rem' }}>SoundCloud</span>
+                                </a>
+                                
+                                {/* Facebook */}
+                                <a 
+                                    href="https://www.facebook.com/share/1ECAntDTDB/?mibextid=wwXIfr" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '12px',
+                                        color: '#888', 
+                                        textDecoration: 'none',
+                                        transition: 'color 0.3s'
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                                    onMouseLeave={e => e.currentTarget.style.color = '#888'}
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                                    </svg>
+                                    <span style={{ fontSize: '0.85rem' }}>Facebook</span>
+                                </a>
+                                
+                                {/* Email */}
+                                <a 
+                                    href="mailto:djvis.business@gmail.com"
+                                    style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: '12px',
+                                        color: '#888', 
+                                        textDecoration: 'none',
+                                        transition: 'color 0.3s'
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                                    onMouseLeave={e => e.currentTarget.style.color = '#888'}
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                        <polyline points="22,6 12,13 2,6"/>
+                                    </svg>
+                                    <span style={{ fontSize: '0.85rem' }}>djvis.business@gmail.com</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        // Footer Component
+        const Footer = () => {
+            return (
+                <footer style={{ borderTop: '1px solid #222', padding: '60px 24px' }}>
+                    <div className="container">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '24px' }}>
+                            {/* FOOTER LOGO */}
+                            <img 
+                                src="vis-logo-white.png" 
+                                alt="VIS" 
+                                height={35} 
+                                style={{ filter: 'invert(1)' }}
+                            />
+                            
+                            {/* Social Links with Icons */}
+                            <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+                                {/* Instagram */}
+                                <a 
+                                    href="https://instagram.com/visthedj" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ color: '#888', transition: 'color 0.3s' }}
+                                    onMouseEnter={e => e.target.style.color = '#fff'}
+                                    onMouseLeave={e => e.target.style.color = '#888'}
+                                    title="@visthedj"
+                                >
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                                    </svg>
+                                </a>
+                                
+                                {/* SoundCloud */}
+                                <a 
+                                    href="https://on.soundcloud.com/L1Zgzv6AkaQ4iuSaKG" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ 
+                                        opacity: '0.6',
+                                        transition: 'opacity 0.3s'
+                                    }}
+                                    onMouseEnter={e => e.target.style.opacity = '1'}
+                                    onMouseLeave={e => e.target.style.opacity = '0.6'}
+                                    title="SoundCloud"
+                                >
+                                    <img src="soundcloud-icon.png" alt="SoundCloud" width="22" height="22" style={{ display: 'block' }} />
+                                </a>
+                                
+                                {/* Facebook */}
+                                <a 
+                                    href="https://www.facebook.com/share/1ECAntDTDB/?mibextid=wwXIfr" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    style={{ color: '#888', transition: 'color 0.3s' }}
+                                    onMouseEnter={e => e.target.style.color = '#fff'}
+                                    onMouseLeave={e => e.target.style.color = '#888'}
+                                    title="Facebook"
+                                >
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                                    </svg>
+                                </a>
+                                
+                                {/* Email */}
+                                <a 
+                                    href="mailto:djvis.business@gmail.com"
+                                    style={{ color: '#888', transition: 'color 0.3s' }}
+                                    onMouseEnter={e => e.target.style.color = '#fff'}
+                                    onMouseLeave={e => e.target.style.color = '#888'}
+                                    title="djvis.business@gmail.com"
+                                >
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                        <polyline points="22,6 12,13 2,6"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: '40px', paddingTop: '40px', borderTop: '1px solid #111' }}>
+                            <p style={{ color: '#444', fontSize: '0.75rem', letterSpacing: '1px', textAlign: 'center' }}>
+                                © 2026 VIS. All rights reserved.
+                            </p>
+                        </div>
+                    </div>
+                </footer>
+            );
+        };
+
+        // App Component
+        const App = () => {
+            return (
+                <div style={{ minHeight: '100vh', background: '#000' }}>
+                    <Navigation />
+                    <main>
+                        <Hero />
+                        <MusicPlayer />
+                        <UpcomingGigs />
+                        <About />
+                        <Gallery />
+                        <Contact />
+                    </main>
+                    <Footer />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+
+    <style>
+        @media (max-width: 768px) {
+            .desktop-nav { display: none !important; }
+            .mobile-menu-btn { display: block !important; }
+        }
+    </style>
+</body>
+</html>
